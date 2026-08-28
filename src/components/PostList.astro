@@ -1,0 +1,36 @@
+---
+import { formatDate, isoDate, readingMinutes, type Post } from '../lib/posts';
+
+interface Props {
+  posts: Post[];
+}
+
+const { posts } = Astro.props;
+---
+
+{
+  posts.length === 0 ? (
+    <p class="empty-state">
+      아직 발행된 글이 없습니다. 생성 스크립트가 첫 글을 쓰면 여기에 쌓입니다.
+    </p>
+  ) : (
+    <ul class="post-list">
+      {posts.map((post) => (
+        <li>
+          <a class="post-item" href={`/posts/${post.id}/`}>
+            <div class="post-item__meta">
+              <time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
+              <span>·</span>
+              <span>{readingMinutes(post.body)}분</span>
+              {post.data.tags.slice(0, 2).map((tag) => (
+                <span class="tag-chip">{tag}</span>
+              ))}
+            </div>
+            <h2 class="post-item__title">{post.data.title}</h2>
+            <p class="post-item__desc">{post.data.description}</p>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}

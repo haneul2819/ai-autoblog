@@ -1,0 +1,107 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import {
+  getPublishedPosts,
+  normalizeSources,
+  formatDate,
+  isoDate,
+  readingMinutes,
+  type Post,
+} from '../../lib/posts';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const posts = await getPublishedPosts();
+  return posts.map((post, index) => ({
+    params: { slug: post.id },
+    props: {
+      post,
+      // 목록은 최신순이라 index-1이 더 새 글, index+1이 더 지난 글이다.
+      newer: posts[index - 1] ?? null,
+      older: posts[index + 1] ?? null,
+    },
+  }));
+};
+
+interface Props {
+  post: Post;
+  newer: Post | null;
+  older: Post | null;
+}
+
+const { post, newer, older } = Astro.props;
+const { Content } = await render(post);
+const sources = normalizeSources(post.data.sources);
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  type="article"
+  publishedTime={post.data.date.toISOString()}
+>
+  <article class="article">
+    <header class="article__header">
+      <div class="article__meta">
+        <time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
+        <span>읽는 데 약 {readingMinutes(post.body)}분</span>
+      </div>
+      <h1>{post.data.title}</h1>
+      <p class="article__lead">{post.data.description}</p>
+      {
+        post.data.tags.length > 0 && (
+          <div class="tag-row">
+            {post.data.tags.map((tag) => (
+              <a class="tag-chip" href={`/tags/${encodeURIComponent(tag)}/`}>
+                {tag}
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </header>
+
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+
+  {
+    sources.length > 0 && (
+      <section class="sources" aria-labelledby="sources-heading">
+        <h2 id="sources-heading">출처</h2>
+        <ol>
+          {sources.map((source) => (
+            <li>
+              <a href={source.url} target="_blank" rel="noopener noreferrer nofollow">
+                {source.title}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )
+  }
+
+  {
+    (newer || older) && (
+      <nav class="article-nav" aria-label="다른 글">
+        {newer ? (
+          <a href={`/posts/${newer.id}/`}>
+            다음 글<b>{newer.data.title}</b>
+          </a>
+        ) : (
+          <span />
+        )}
+        {older ? (
+          <a class="is-next" href={`/posts/${older.id}/`}>
+            이전 글<b>{older.data.title}</b>
+          </a>
+        ) : (
+          <span />
+        )}
+      </nav>
+    )
+  }
+</BaseLayout>

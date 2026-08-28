@@ -1,0 +1,14 @@
+{
+  "mode": "draft",
+  "postsPerDay": 3,
+  "cutoffHour": 22,
+  "recentTopicWindow": 60,
+  "timeoutSeconds": 1500,
+  "site": {
+    "url": "https://ai-autoblog.vercel.app",
+    "title": "AI 브리핑",
+    "description": "매일 세 번, AI 분야의 뉴스와 논문과 제품 발표를 하나씩 골라 한국어로 정리합니다.",
+    "author": "haneul2819"
+  },
+  "topicScope": "AI 연구 논문, 모델과 제품 발표, 개발자 도구, 추론과 학습 인프라, 평가와 안전성, 산업과 정책 동향. 홍보성 보도자료 요약과 주가 전망은 제외한다."
+}
