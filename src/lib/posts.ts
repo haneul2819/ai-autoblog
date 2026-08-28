@@ -2,10 +2,26 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 
 export type Post = CollectionEntry<'posts'>;
 
-/** draft 표시가 없는 글만, 최신순으로. */
+const includeDrafts = process.env.INCLUDE_DRAFTS === '1';
+
+/**
+ * 사이트에 내보낼 글만, 최신순으로.
+ *
+ * 초안은 content.config.ts의 glob 패턴에서 이미 빠지지만, Astro의 콘텐츠 캐시
+ * (node_modules/.astro/data-store.json)는 패턴이 바뀌어도 스스로 비워지지 않는다.
+ * 미리보기를 한 번 돌린 뒤 그냥 빌드하면 초안이 배포본에 섞여 들어간다.
+ * 그래서 파일이 어느 폴더에 있는지로 한 번 더 거른다.
+ */
 export async function getPublishedPosts(): Promise<Post[]> {
   const posts = await getCollection('posts', ({ data }) => data.draft !== true);
-  return posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  return posts
+    .filter((post) => includeDrafts || !isDraftFile(post))
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+}
+
+function isDraftFile(post: Post): boolean {
+  // filePath는 프로젝트 루트 기준 상대 경로로 오지만, 절대 경로여도 걸리도록 둔다.
+  return /(^|\/)content\/drafts\//.test((post.filePath ?? '').replace(/\\/g, '/'));
 }
 
 /** front matter의 sources는 문자열이거나 { title, url } 객체다. 한 형태로 펴 준다. */

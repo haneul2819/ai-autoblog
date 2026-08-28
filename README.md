@@ -75,13 +75,21 @@ bash scripts/generate-post.sh
 `config.json`의 `mode`가 기본값 `draft`이므로 결과물은 `content/drafts/` 에 저장되고
 사이트에는 나타나지 않습니다.
 
-만들어진 글을 눈으로 확인합니다.
+만들어진 글을 사이트에서 확인합니다. 초안까지 함께 띄우는 미리보기 모드입니다.
+화면 맨 위에 초안 미리보기라는 띠가 뜨고, 이 모드는 배포 빌드와 무관합니다.
 
 ```bash
-npm run dev
+npm run dev:drafts
 ```
 
-초안을 사이트에서 미리 보려면 파일을 `content/posts/` 로 옮기면 됩니다.
+발행된 글만 보려면 `npm run dev` 입니다.
+
+읽어 보고 발행하기로 했다면 파일을 옮기기만 하면 됩니다. 주소는 파일 이름으로 정해지므로
+폴더를 옮겨도 주소가 바뀌지 않습니다.
+
+```bash
+mv content/drafts/2026-08-29-어떤-글.md content/posts/
+```
 
 ---
 
@@ -151,7 +159,18 @@ Start-ScheduledTask -TaskName 'AI-AutoBlog'
 며칠 결과를 보고 직접 `"publish"` 로 바꾸세요. 바꾸기 전에 쌓인 초안 중 쓸 만한 것은
 `content/drafts/` 에서 `content/posts/` 로 옮기면 그대로 발행됩니다.
 
+초안은 검토 모드에서도 "이미 다룬 주제" 목록에 들어갑니다. 초안으로만 쓴 주제를
+나중에 다시 쓰는 일은 없습니다.
+
 개별 글을 임시로 감추고 싶으면 front matter에 `draft: true` 를 넣으면 됩니다.
+
+| 명령 | 하는 일 |
+|---|---|
+| `npm run dev` | 발행된 글만 띄운다 (배포본과 같은 상태) |
+| `npm run dev:drafts` | 초안까지 함께 띄운다 (검토용) |
+| `npm run build` | 배포용 빌드 |
+| `npm run check` | 타입 검사 |
+| `npm run post` | 글 한 편 생성 (`bash scripts/generate-post.sh` 와 같음) |
 
 ---
 
@@ -239,7 +258,7 @@ Vercel 쪽 설정:
 - 목록은 12편씩 나뉩니다. `/`, `/2`, `/3` …
 - 글 주소는 `/posts/2026-08-29-slug/` 입니다.
 - 태그 목록 `/tags/`, 태그별 목록 `/tags/<태그>/`
-- `/rss.xml`, `/sitemap-index.xml`
+- `/rss.xml`, `/sitemap.xml`
 - 다크모드 토글은 헤더 오른쪽에 있고, 선택은 브라우저에 저장됩니다. 선택하지 않으면
   OS 설정을 따릅니다.
 - 본문은 한 줄 35~40자, 줄간격 1.9, 한글 어절 단위 줄바꿈(`word-break: keep-all`)으로
@@ -256,6 +275,12 @@ Vercel 쪽 설정:
 **작업 스케줄러가 도는데 글이 안 나온다**
 로그인 세션이 살아 있어야 합니다(잠금 화면은 괜찮지만 로그아웃 상태는 안 됩니다).
 `logs/raw/*.err` 를 먼저 확인하세요. 구독 사용량 한도에 걸렸다면 그 내용이 찍힙니다.
+
+**로그의 한글이 깨진다**
+`.ps1` 파일은 **BOM이 붙은 UTF-8**로 저장해야 합니다. Windows PowerShell 5.1은 BOM이
+없으면 스크립트를 시스템 ANSI 코드페이지(한국어 환경에서 CP949)로 읽어 한글 문자열을
+망가뜨립니다. 편집기에서 "UTF-8 with BOM"으로 저장하세요. 메모장은 그냥 "UTF-8"이
+BOM 포함입니다.
 
 **`Git Bash(bash.exe)를 찾지 못했다`**
 Git for Windows를 설치하거나, 설치 경로가 특이하면 `run-scheduled.ps1` 의

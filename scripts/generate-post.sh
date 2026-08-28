@@ -225,7 +225,8 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
   if git diff --cached --quiet -- "$NEW_FILE"; then
     PUSH_NOTE="변경 없음 — 커밋 생략"
   else
-    git commit -q -m "post(${MODE}): ${TITLE}" -m "자동 생성: ${NEW_FILE}"
+    # --only 로 이 글 하나만 담는다. 작업하다 남긴 스테이징이 딸려 들어가지 않도록.
+    git commit -q --only -m "post(${MODE}): ${TITLE}" -m "자동 생성: ${NEW_FILE}" -- "$NEW_FILE"
     say "커밋 완료."
     if git remote get-url origin >/dev/null 2>&1; then
       BRANCH="$(git rev-parse --abbrev-ref HEAD)"
