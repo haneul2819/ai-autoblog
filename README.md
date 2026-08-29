@@ -1,7 +1,12 @@
 # AI 자동 블로그
 
+**https://haneul2819.github.io/ai-autoblog/**
+
 PC가 켜져 있는 동안 로컬에서 돌면서, 하루 세 번 AI 분야의 새 주제를 하나씩 골라
 한국어 글을 쓰고 사이트에 배포하는 장치입니다.
+
+현재 상태: 발행 모드(`publish`), 작업 스케줄러 등록됨(09:00 / 14:00 / 20:00),
+GitHub Pages 자동 배포 연결됨.
 
 글을 쓰는 주체는 **로그인된 Claude Code 구독 세션**입니다. `ANTHROPIC_API_KEY`는
 쓰지 않습니다. 생성 스크립트가 환경에서 키를 걷어내고 헤드리스 모드로 세션을 띄웁니다.
@@ -15,7 +20,7 @@ generate-post.sh    최근 글 목록 + 집필 규칙을 프롬프트로 조립
    ↓
 claude -p           WebSearch로 최근 3일 조사 → 주제 선정 → 집필 → 파일 저장
    ↓
-검사 → git commit & push → Vercel 빌드
+검사 → git commit & push → GitHub Actions → Pages 배포
 ```
 
 ---
@@ -60,8 +65,13 @@ Claude Code 로그인 상태는 이렇게 확인합니다. 로그인이 안 돼 
 claude -p "ok 라고만 답해" --output-format json
 ```
 
-사이트 주소와 제목을 `config.json`의 `site` 항목에서 바꿉니다. RSS와 sitemap의
-절대 주소로 쓰이므로 Vercel 배포 주소가 정해지면 반드시 고쳐 주세요.
+사이트 주소와 제목은 `config.json`의 `site` 항목에 있습니다. `site.url` 하나가
+Astro의 `site`와 `base`를 모두 결정하므로, 주소를 옮길 때 고칠 곳은 이 한 줄뿐입니다.
+
+```
+https://haneul2819.github.io/ai-autoblog   → site 는 오리진, base 는 /ai-autoblog
+https://ai-briefing.example.com            → site 는 오리진, base 는 없음
+```
 
 ---
 
@@ -72,30 +82,26 @@ bash scripts/generate-post.sh
 ```
 
 3~10분 걸립니다. 진행 상황은 화면에, 결과 한 줄은 `logs/2026-08.log` 에 남습니다.
-`config.json`의 `mode`가 기본값 `draft`이므로 결과물은 `content/drafts/` 에 저장되고
-사이트에는 나타나지 않습니다.
 
-만들어진 글을 사이트에서 확인합니다. 초안까지 함께 띄우는 미리보기 모드입니다.
-화면 맨 위에 초안 미리보기라는 띠가 뜨고, 이 모드는 배포 빌드와 무관합니다.
+지금은 `mode`가 `publish`이므로 결과물이 `content/posts/` 에 저장되고, 커밋과 푸시가
+끝나면 GitHub Actions가 1~2분 안에 사이트를 다시 배포합니다. **사람이 읽어 보기 전에
+공개됩니다.** 검토를 끼우고 싶으면 아래 5번을 보세요.
 
-```bash
-npm run dev:drafts
-```
-
-발행된 글만 보려면 `npm run dev` 입니다.
-
-읽어 보고 발행하기로 했다면 파일을 옮기기만 하면 됩니다. 주소는 파일 이름으로 정해지므로
-폴더를 옮겨도 주소가 바뀌지 않습니다.
+로컬에서 확인:
 
 ```bash
-mv content/drafts/2026-08-29-어떤-글.md content/posts/
+npm run dev
 ```
+
+초안까지 함께 보려면 `npm run dev:drafts` 입니다. 이 모드에서는 화면 맨 위에 안내 띠가
+뜨고, 배포 빌드와는 무관합니다.
 
 ---
 
-## 4. 스케줄러 등록
+## 4. 스케줄러
 
-며칠 치 결과를 보고 마음에 들면 등록합니다.
+**이미 등록돼 있습니다.** `AI-AutoBlog` 작업이 매일 09:00 / 14:00 / 20:00 에 돕니다.
+다시 등록하거나 시각을 바꿀 때만 아래를 씁니다.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\register-task.ps1
@@ -143,26 +149,28 @@ Start-ScheduledTask -TaskName 'AI-AutoBlog'
 
 ---
 
-## 5. 검토 모드에서 발행 모드로
+## 5. 발행 모드와 검토 모드
 
-`config.json`:
-
-```json
-{ "mode": "draft" }
-```
+`config.json` 의 `mode` 한 줄로 바뀝니다. **지금은 `publish` 입니다.**
 
 | 값 | 저장 위치 | 사이트 노출 |
 |---|---|---|
-| `draft` (기본) | `content/drafts/` | 안 됨 |
-| `publish` | `content/posts/` | 됨 |
+| `publish` (현재) | `content/posts/` | 바로 공개 |
+| `draft` | `content/drafts/` | 안 됨 |
 
-며칠 결과를 보고 직접 `"publish"` 로 바꾸세요. 바꾸기 전에 쌓인 초안 중 쓸 만한 것은
-`content/drafts/` 에서 `content/posts/` 로 옮기면 그대로 발행됩니다.
+사람 검토를 끼우고 싶어지면 `"draft"` 로 되돌리면 됩니다. 그러면 글이
+`content/drafts/` 에 쌓이고, 읽어 본 뒤 마음에 드는 것만 옮기면 발행됩니다.
+주소는 파일 이름으로 정해지므로 폴더를 옮겨도 주소가 바뀌지 않습니다.
 
-초안은 검토 모드에서도 "이미 다룬 주제" 목록에 들어갑니다. 초안으로만 쓴 주제를
-나중에 다시 쓰는 일은 없습니다.
+```bash
+mv content/drafts/2026-08-29-어떤-글.md content/posts/
+```
 
-개별 글을 임시로 감추고 싶으면 front matter에 `draft: true` 를 넣으면 됩니다.
+초안도 "이미 다룬 주제" 목록에 들어갑니다. 초안으로만 쓴 주제를 나중에 다시 쓰는
+일은 없습니다.
+
+개별 글을 이미 발행한 뒤에 내리고 싶으면 front matter에 `draft: true` 를 넣고
+커밋하면 다음 배포에서 사라집니다.
 
 | 명령 | 하는 일 |
 |---|---|
@@ -223,33 +231,36 @@ Start-ScheduledTask -TaskName 'AI-AutoBlog'
 
 ---
 
-## 8. GitHub와 Vercel 연결
+## 8. 배포
 
-로컬 저장소는 이미 만들어져 있습니다. GitHub 원격만 붙이면 됩니다.
+**연결이 끝나 있습니다.** 저장소는 [haneul2819/ai-autoblog](https://github.com/haneul2819/ai-autoblog)
+(공개), 사이트는 GitHub Pages입니다.
+
+생성 스크립트가 `main` 에 푸시하면 `.github/workflows/deploy.yml` 이 돌아
+`npm ci → npm run build → Pages 배포` 를 1~2분 안에 끝냅니다. 손댈 일이 없습니다.
+
+배포 상태 확인:
 
 ```bash
-gh repo create ai-autoblog --private --source=. --remote=origin --push
+gh run list --limit 5
 ```
 
-이미 만들어 둔 저장소가 있다면:
+실패한 배포의 로그:
 
 ```bash
-git remote add origin https://github.com/<계정>/<저장소>.git
-git push -u origin main
+gh run view --log-failed
 ```
 
-원격이 붙기 전까지 생성 스크립트는 커밋만 하고 푸시는 건너뜁니다. 로그에
-`origin 원격 없음 — 푸시 생략` 으로 남습니다.
+### 주소를 옮길 때
 
-Vercel 쪽 설정:
+`config.json` 의 `site.url` 한 줄만 고치고 커밋하면 됩니다. Astro의 `site`와 `base`,
+RSS·sitemap·robots의 절대 주소가 모두 여기서 나옵니다.
 
-1. [vercel.com/new](https://vercel.com/new) 에서 저장소를 가져옵니다.
-2. 프레임워크는 **Astro** 로 자동 인식됩니다. 빌드 명령 `npm run build`,
-   출력 디렉터리 `dist`.
-3. 배포 주소가 나오면 `config.json` 의 `site.url` 을 그 주소로 고치고 커밋합니다.
-   (RSS와 sitemap이 절대 주소를 쓰기 때문에 이 단계를 빠뜨리면 링크가 틀어집니다.)
-
-이후로는 생성 스크립트가 푸시할 때마다 Vercel이 알아서 다시 빌드합니다.
+- **커스텀 도메인**: Pages 설정에서 도메인을 등록한 뒤 `site.url` 을
+  `https://내도메인.com` 으로 고칩니다. 하위 경로가 없어지므로 `base` 는 자동으로 빠집니다.
+- **Vercel로 이사**: [vercel.com/new](https://vercel.com/new) 에서 이 저장소를 가져오면
+  프레임워크가 **Astro** 로 자동 인식됩니다(빌드 `npm run build`, 출력 `dist`).
+  배포 주소가 나오면 `site.url` 을 그 주소로 고칩니다. 둘을 동시에 써도 됩니다.
 
 ---
 
@@ -263,6 +274,9 @@ Vercel 쪽 설정:
   OS 설정을 따릅니다.
 - 본문은 한 줄 35~40자, 줄간격 1.9, 한글 어절 단위 줄바꿈(`word-break: keep-all`)으로
   잡았습니다. 폰트는 외부에서 받아 오지 않고 시스템 폰트를 씁니다.
+- 위 경로는 모두 `base`(현재 `/ai-autoblog`) 아래에 붙습니다. 컴포넌트에서 내부 링크를
+  쓸 때는 반드시 `src/lib/url.ts` 의 `href()` 를 통과시키세요. 그냥 `href="/tags/"` 라고
+  쓰면 도메인 루트를 가리켜 깨집니다.
 
 ---
 
@@ -275,6 +289,10 @@ Vercel 쪽 설정:
 **작업 스케줄러가 도는데 글이 안 나온다**
 로그인 세션이 살아 있어야 합니다(잠금 화면은 괜찮지만 로그아웃 상태는 안 됩니다).
 `logs/raw/*.err` 를 먼저 확인하세요. 구독 사용량 한도에 걸렸다면 그 내용이 찍힙니다.
+
+**글은 커밋됐는데 사이트에 안 보인다**
+GitHub Actions 배포가 실패했을 수 있습니다. `gh run list --limit 5` 로 상태를 보고
+`gh run view --log-failed` 로 이유를 확인하세요. 배포는 보통 1~2분 걸립니다.
 
 **로그의 한글이 깨진다**
 `.ps1` 파일은 **BOM이 붙은 UTF-8**로 저장해야 합니다. Windows PowerShell 5.1은 BOM이
