@@ -1,5 +1,6 @@
 import type { APIContext } from 'astro';
 import { getPublishedPosts, groupByTag, isoDate } from '../lib/posts';
+import { href } from '../lib/url';
 
 const PAGE_SIZE = 12; // [...page].astro 와 같은 값이어야 한다.
 
@@ -12,22 +13,22 @@ export async function GET(context: APIContext) {
   const lastPage = Math.max(1, Math.ceil(posts.length / PAGE_SIZE));
 
   const entries: { path: string; lastmod?: string }[] = [
-    { path: '/', lastmod: newest },
-    { path: '/about/' },
-    { path: '/tags/', lastmod: newest },
+    { path: href('/'), lastmod: newest },
+    { path: href('/about/') },
+    { path: href('/tags/'), lastmod: newest },
   ];
 
   for (let page = 2; page <= lastPage; page++) {
-    entries.push({ path: `/${page}/` });
+    entries.push({ path: href(`/${page}/`) });
   }
 
   for (const post of posts) {
-    entries.push({ path: `/posts/${post.id}/`, lastmod: isoDate(post.data.date) });
+    entries.push({ path: href(`/posts/${post.id}/`), lastmod: isoDate(post.data.date) });
   }
 
   for (const { tag, posts: tagged } of tags) {
     entries.push({
-      path: `/tags/${encodeURIComponent(tag)}/`,
+      path: href(`/tags/${encodeURIComponent(tag)}/`),
       lastmod: tagged[0] ? isoDate(tagged[0].data.date) : undefined,
     });
   }

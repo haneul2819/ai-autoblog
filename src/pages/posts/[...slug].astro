@@ -10,6 +10,7 @@ import {
   readingMinutes,
   type Post,
 } from '../../lib/posts';
+import { href } from '../../lib/url';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const posts = await getPublishedPosts();
@@ -53,7 +54,7 @@ const sources = normalizeSources(post.data.sources);
         post.data.tags.length > 0 && (
           <div class="tag-row">
             {post.data.tags.map((tag) => (
-              <a class="tag-chip" href={`/tags/${encodeURIComponent(tag)}/`}>
+              <a class="tag-chip" href={href(`/tags/${encodeURIComponent(tag)}/`)}>
                 {tag}
               </a>
             ))}
@@ -88,14 +89,14 @@ const sources = normalizeSources(post.data.sources);
     (newer || older) && (
       <nav class="article-nav" aria-label="다른 글">
         {newer ? (
-          <a href={`/posts/${newer.id}/`}>
+          <a href={href(`/posts/${newer.id}/`)}>
             다음 글<b>{newer.data.title}</b>
           </a>
         ) : (
           <span />
         )}
         {older ? (
-          <a class="is-next" href={`/posts/${older.id}/`}>
+          <a class="is-next" href={href(`/posts/${older.id}/`)}>
             이전 글<b>{older.data.title}</b>
           </a>
         ) : (

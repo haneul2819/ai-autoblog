@@ -1,11 +1,11 @@
 {
-  "mode": "draft",
+  "mode": "publish",
   "postsPerDay": 3,
   "cutoffHour": 22,
   "recentTopicWindow": 60,
   "timeoutSeconds": 1500,
   "site": {
-    "url": "https://ai-autoblog.vercel.app",
+    "url": "https://haneul2819.github.io/ai-autoblog",
     "title": "AI 브리핑",
     "description": "매일 세 번, AI 분야의 뉴스와 논문과 제품 발표를 하나씩 골라 한국어로 정리합니다.",
     "author": "haneul2819"

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { href } from '../lib/url';
 ---
 
 <BaseLayout title="찾는 글이 없습니다" description="요청한 주소에 해당하는 글이 없습니다.">
@@ -7,5 +8,5 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <h1>찾는 글이 없습니다</h1>
     <p>주소가 바뀌었거나, 아직 발행되지 않은 글일 수 있습니다.</p>
   </div>
-  <p><a href="/">최근 글 목록으로 돌아가기</a></p>
+  <p><a href={href('/')}>최근 글 목록으로 돌아가기</a></p>
 </BaseLayout>

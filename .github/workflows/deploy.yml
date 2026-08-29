@@ -1,0 +1,50 @@
+name: Deploy to GitHub Pages
+
+# 글이 푸시될 때마다 사이트를 다시 빌드해 배포한다.
+# 생성 스크립트가 content/posts/ 에 커밋하고 푸시하면 이 워크플로가 알아서 돈다.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'logs/**'
+      - 'README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 배포는 하나씩. 앞선 배포를 취소하지 않고 줄을 세운다.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -3,6 +3,7 @@ import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostList from '../../components/PostList.astro';
 import { getPublishedPosts, groupByTag, type Post } from '../../lib/posts';
+import { href } from '../../lib/url';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const posts = await getPublishedPosts();
@@ -23,7 +24,7 @@ const { tag, posts } = Astro.props;
 <BaseLayout title={`${tag} 태그`} description={`${tag} 태그가 붙은 글 ${posts.length}편.`}>
   <div class="page-intro">
     <h1>{tag}</h1>
-    <p>이 태그가 붙은 글 {posts.length}편입니다. <a href="/tags/">전체 태그 보기</a></p>
+    <p>이 태그가 붙은 글 {posts.length}편입니다. <a href={href('/tags/')}>전체 태그 보기</a></p>
   </div>
 
   <PostList posts={posts} />

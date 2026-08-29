@@ -1,5 +1,6 @@
 ---
 import { SITE_TITLE, SITE_DESCRIPTION, NAV } from '../consts';
+import { href } from '../lib/url';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import '../styles/global.css';
 
@@ -22,8 +23,14 @@ const {
 const previewingDrafts = process.env.INCLUDE_DRAFTS === '1';
 
 const pageTitle = title ? `${title} — ${SITE_TITLE}` : SITE_TITLE;
+
+// Astro.url.pathname 은 base 를 포함한다. 오리진만 담긴 Astro.site 와 합치면 정규 주소가 된다.
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+// 메뉴 활성 표시용 — base 를 떼어 낸 뒤 비교한다.
+const basePath = import.meta.env.BASE_URL.replace(/\/+$/, '');
+const pathname =
+  (Astro.url.pathname.slice(basePath.length).replace(/\/$/, '') || '/');
 ---
 
 <!doctype html>
@@ -34,13 +41,13 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="sitemap" href="/sitemap.xml" />
+    <link rel="icon" href={href('/favicon.svg')} type="image/svg+xml" />
+    <link rel="sitemap" href={href('/sitemap.xml')} />
     <link
       rel="alternate"
       type="application/rss+xml"
       title={SITE_TITLE}
-      href={new URL('rss.xml', Astro.site)}
+      href={new URL(href('/rss.xml'), Astro.site).href}
     />
     <meta property="og:type" content={type} />
     <meta property="og:title" content={title ?? SITE_TITLE} />
@@ -79,21 +86,18 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
 
       <header class="site-header">
         <div class="wrap site-header__inner">
-          <a class="site-header__brand" href="/">{SITE_TITLE}</a>
+          <a class="site-header__brand" href={href('/')}>{SITE_TITLE}</a>
           <nav class="site-nav" aria-label="주요 메뉴">
             {
-              NAV.map((item) => (
-                <a
-                  href={item.href}
-                  aria-current={
-                    (item.href === '/' ? pathname === '/' : pathname.startsWith(item.href))
-                      ? 'page'
-                      : undefined
-                  }
-                >
-                  {item.label}
-                </a>
-              ))
+              NAV.map((item) => {
+                const target = item.path.replace(/\/$/, '') || '/';
+                const active = target === '/' ? pathname === '/' : pathname.startsWith(target);
+                return (
+                  <a href={href(item.path)} aria-current={active ? 'page' : undefined}>
+                    {item.label}
+                  </a>
+                );
+              })
             }
             <ThemeToggle />
           </nav>
@@ -110,8 +114,8 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
         <div class="wrap">
           <p>{SITE_TITLE} — 하루 세 번, 사람이 고르지 않고 자동으로 발행됩니다.</p>
           <p>
-            <a href="/rss.xml">RSS</a> · <a href="/sitemap.xml">사이트맵</a> ·
-            <a href="/about">이 사이트에 대하여</a>
+            <a href={href('/rss.xml')}>RSS</a> · <a href={href('/sitemap.xml')}>사이트맵</a> ·
+            <a href={href('/about/')}>이 사이트에 대하여</a>
           </p>
         </div>
       </footer>
