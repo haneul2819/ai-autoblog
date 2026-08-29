@@ -231,7 +231,7 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
     if git remote get-url origin >/dev/null 2>&1; then
       BRANCH="$(git rev-parse --abbrev-ref HEAD)"
       if git push -q origin "$BRANCH" 2>>"$ERR_LOG"; then
-        say "origin/${BRANCH} 로 푸시 완료. Vercel 빌드가 시작된다."
+        say "origin/${BRANCH} 로 푸시 완료. 배포 워크플로가 시작된다."
       else
         PUSH_NOTE="푸시 실패 — 커밋은 남아 있다"
         say "경고: 푸시에 실패했다. 커밋은 로컬에 남아 있으니 나중에 다시 밀면 된다."
