@@ -6,8 +6,6 @@ tags: ["Anthropic", "Claude", "에이전트", "MCP", "자동화"]
 sources:
   - title: "Previewing the Model Hardware Standard"
     url: "https://www.anthropic.com/news/model-hardware-standard-research-preview"
-  - title: "Anthropic opens research preview for AI hardware standard"
-    url: "https://www.investing.com/news/stock-market-news/anthropic-opens-research-preview-for-ai-hardware-standard-93CH-4879988"
   - title: "Anthropic previews a standard for AI agents running lab kit"
     url: "https://www.resultsense.com/news/2026-08-28-anthropic-model-hardware-standard/"
 ---
