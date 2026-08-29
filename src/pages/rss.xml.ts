@@ -10,7 +10,8 @@ export async function GET(context: APIContext) {
   return rss({
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    site: context.site!,
+    // 채널 주소는 base 를 포함한 사이트 루트여야 한다. context.site 는 오리진뿐이다.
+    site: new URL(href('/'), context.site!).href,
     trailingSlash: true,
     customData: '<language>ko</language>',
     items: posts.slice(0, 50).map((post) => ({
