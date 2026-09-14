@@ -1,6 +1,6 @@
 # AI 자동 블로그
 
-**https://haneul2819.github.io/ai-autoblog/**
+**https://ailog.hnlab.kr/**
 
 PC가 켜져 있는 동안 로컬에서 돌면서, 하루 세 번 AI 분야의 새 주제를 하나씩 골라
 한국어 글을 쓰고 사이트에 배포하는 장치입니다.
@@ -69,8 +69,8 @@ claude -p "ok 라고만 답해" --output-format json
 Astro의 `site`와 `base`를 모두 결정하므로, 주소를 옮길 때 고칠 곳은 이 한 줄뿐입니다.
 
 ```
+https://ailog.hnlab.kr                     → site 는 오리진, base 는 없음 (현재)
 https://haneul2819.github.io/ai-autoblog   → site 는 오리진, base 는 /ai-autoblog
-https://ai-briefing.example.com            → site 는 오리진, base 는 없음
 ```
 
 ---
@@ -234,7 +234,16 @@ mv content/drafts/2026-08-29-어떤-글.md content/posts/
 ## 8. 배포
 
 **연결이 끝나 있습니다.** 저장소는 [haneul2819/ai-autoblog](https://github.com/haneul2819/ai-autoblog)
-(공개), 사이트는 GitHub Pages입니다.
+(공개), 사이트는 GitHub Pages이고 주소는 `ailog.hnlab.kr` 입니다.
+
+| 어디 | 설정 |
+|---|---|
+| 가비아 DNS (`hnlab.kr`) | `CNAME` · 호스트 `ailog` · 값 `haneul2819.github.io.` |
+| GitHub Pages | 사용자 도메인 `ailog.hnlab.kr`, HTTPS 강제 |
+| `config.json` | `site.url` = `https://ailog.hnlab.kr` |
+
+예전 주소 `haneul2819.github.io/ai-autoblog/...` 는 GitHub이 새 주소로 영구 이전(301)합니다.
+Pages 설정의 사용자 도메인을 지우면 이 연결이 끊기니 건드리지 마세요.
 
 생성 스크립트가 `main` 에 푸시하면 `.github/workflows/deploy.yml` 이 돌아
 `npm ci → npm run build → Pages 배포` 를 1~2분 안에 끝냅니다. 손댈 일이 없습니다.
@@ -274,9 +283,9 @@ RSS·sitemap·robots의 절대 주소가 모두 여기서 나옵니다.
   OS 설정을 따릅니다.
 - 본문은 한 줄 35~40자, 줄간격 1.9, 한글 어절 단위 줄바꿈(`word-break: keep-all`)으로
   잡았습니다. 폰트는 외부에서 받아 오지 않고 시스템 폰트를 씁니다.
-- 위 경로는 모두 `base`(현재 `/ai-autoblog`) 아래에 붙습니다. 컴포넌트에서 내부 링크를
-  쓸 때는 반드시 `src/lib/url.ts` 의 `href()` 를 통과시키세요. 그냥 `href="/tags/"` 라고
-  쓰면 도메인 루트를 가리켜 깨집니다.
+- 지금은 도메인 루트에 배포돼 `base` 가 비어 있지만, 컴포넌트에서 내부 링크를 쓸 때는
+  계속 `src/lib/url.ts` 의 `href()` 를 통과시키세요. 나중에 하위 경로로 옮기면
+  `href()` 를 거치지 않은 링크만 깨집니다.
 
 ---
 
